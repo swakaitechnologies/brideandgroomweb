@@ -1,0 +1,111 @@
+name: Matrix Matrimony CD
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+on:
+  workflow_run:
+    workflows: ["Matrix Matrimony CI"]
+    types:
+      - completed
+    branches: [main]
+
+jobs:
+  deploy:
+    # --- DEPLOYMENT ORCHESTRATION ---
+    # Trigger only if ALL distributed CI jobs succeeded
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    env:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PROD_ENV: ${{ secrets.PROD_ENV }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Production
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.PROD_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          envs: DOCKER_USERNAME,DOCKER_PASSWORD,GITHUB_TOKEN,GITHUB_ACTOR,PROD_ENV
+          script: |
+            mkdir -p ~/.ssh
+            ssh-keyscan -t ed25519 github.com >> ~/.ssh/known_hosts
+            if [ ! -d "/root/Matrimony/.git" ]; then
+              echo "${{ secrets.PROD_SSH_KEY }}" > ~/.ssh/id_ed25519
+              chmod 600 ~/.ssh/id_ed25519
+              cd /root
+              git clone git@github.com:MaheshBadgujar75/brideandgroom.git Matrimony
+            fi
+            cd /root/Matrimony
+            git pull origin main
+            
+            # --- Restore Environment Variables ---
+            echo "$PROD_ENV" > .env
+            
+            # --- NEW: SSL Self-Healing Bootstrap ---
+            CERT_PATH="/etc/letsencrypt/live/brideandgroom.co.in"
+            if [ ! -f "$CERT_PATH/fullchain.pem" ]; then
+              echo "SSL Certificates mission. Bootstrapping temporary self-signed certs..."
+              sudo mkdir -p "$CERT_PATH"
+              sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+                -keyout "$CERT_PATH/privkey.pem" \
+                -out "$CERT_PATH/fullchain.pem" \
+                -subj "/CN=brideandgroom.co.in"
+              sudo chmod -R 755 /etc/letsencrypt
+            fi
+            
+            # --- NEW: Aggressive Resource Cleanup ---
+            echo "Cleaning up existing containers..."
+            docker compose --env-file .env down --remove-orphans || true
+            
+            # Force-kill any system processes on 80/443
+            sudo systemctl stop nginx || true
+            sudo systemctl stop apache2 || true
+            sudo fuser -k 80/tcp || true
+            sudo fuser -k 443/tcp || true
+            
+            # Distributed Deployment
+            echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+            echo "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+            docker compose --env-file .env pull
+            docker compose --env-file .env up -d
+            
+            # --- VERIFICATION ---
+            echo "Waiting for services to stabilize..."
+            sleep 20
+            docker compose ps
+            
+            # Check if gateway is running
+            if [ $(docker ps -q -f name=matrimony-gateway | wc -l) -eq 0 ]; then
+              echo "ERROR: Gateway failed to start! Printing all service logs for diagnosis:"
+              docker compose logs --tail 100
+              exit 1
+            fi
+            
+            # --- Attempt Auto-Upgrade to Real Let's Encrypt Certs ---
+            # Correctly detect self-signed certs using openssl instead of cat
+            IS_SELF_SIGNED=$(sudo openssl x509 -in "$CERT_PATH/fullchain.pem" -issuer -noout | grep -i "brideandgroom" || true)
+            if [ ! -z "$IS_SELF_SIGNED" ]; then
+               echo "Self-signed certificate detected. Attempting to upgrade to real Let's Encrypt certificates..."
+               
+               # Ensure Certbot is installed
+               if ! command -v certbot &> /dev/null; then
+                 echo "Certbot not found. Installing..."
+                 sudo apt-get update && sudo apt-get install -y certbot
+               fi
+
+               # CLEANUP: Remove manual directories that might conflict with Certbot's lineage
+               sudo rm -rf "$CERT_PATH" /etc/letsencrypt/archive/brideandgroom.co.in /etc/letsencrypt/renewal/brideandgroom.co.in.conf
+
+               sudo mkdir -p /var/www/certbot
+               sudo certbot certonly --webroot -w /var/www/certbot --non-interactive --agree-tos --email info@swakai.in \
+                 -d brideandgroom.co.in -d www.brideandgroom.co.in -d admin.brideandgroom.co.in -d api.brideandgroom.co.in -d storage.brideandgroom.co.in -d s3.brideandgroom.co.in \
+                 --deploy-hook "docker compose exec -T gateway nginx -s reload"
+            else
+               echo "Real SSL certificate already in place. Skipping upgrade."
+            fi
+            
+            docker system prune -f
+            echo "Deployment Successful!"

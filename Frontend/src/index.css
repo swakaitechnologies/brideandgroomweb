@@ -1,0 +1,126 @@
+@import "tailwindcss";
+
+@theme {
+  /* Elite Royal Palette - High Contrast Luxury */
+  --color-primary: #4b0082;
+  /* Royal Purple */
+  --color-primary-hover: #3c0068;
+  --color-primary-foreground: #ffffff;
+
+  --color-secondary: #ffd700;
+  /* Vibrant Gold */
+  --color-secondary-hover: #e6c200;
+  --color-secondary-foreground: #000000;
+
+  --color-background: #ffffff;
+  /* Pure White */
+  --color-foreground: #000000;
+
+  --color-muted: #f8f6ff;
+  /* Very subtle Lavender tint */
+  --color-muted-foreground: #222222;
+
+  --color-accent: #f0ebff;
+  /* Soft Lavender */
+  --color-accent-foreground: #4b0082;
+
+  --color-border: #e9e4f5;
+  --color-input: #ffffff;
+
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #ffffff;
+
+  --radius-lg: 24px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+
+  --shadow-soft:
+    0 10px 40px -10px rgba(75, 0, 130, 0.12),
+    0 4px 12px -5px rgba(0, 0, 0, 0.05);
+  --shadow-elevated: 0 25px 60px -12px rgba(75, 0, 130, 0.18);
+
+  --animate-fade-in: fadeIn 0.4s ease-out forwards;
+  --animate-float: float 4s ease-in-out infinite;
+
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased font-medium;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    overscroll-behavior-y: none; /* Helps with Lenis smooth scroll */
+  }
+
+  img {
+    @apply h-auto max-w-full;
+    content-visibility: auto; /* Performance boost for off-screen images */
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-medium tracking-tight;
+    font-family: "Outfit", sans-serif;
+    /* Cleaner geometric headings */
+  }
+}
+
+@layer components {
+  .container {
+    @apply mx-auto px-4 max-w-7xl w-full;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Smooth snap for mobile menus */
+  .snaps-inline {
+    scroll-snap-type: x mandatory;
+  }
+  .snaps-inline > * {
+    scroll-snap-align: start;
+  }
+
+  .gpu-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+}
+
+
+

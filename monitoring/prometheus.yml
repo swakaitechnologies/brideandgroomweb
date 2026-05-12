@@ -1,0 +1,36 @@
+# Prometheus Configuration — Matrimony Platform
+# Scrape metrics from backend every 15 seconds
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  scrape_timeout: 10s
+
+scrape_configs:
+  # Backend Application Metrics
+  - job_name: "matrimony-backend"
+    metrics_path: /api/metrics
+    static_configs:
+      - targets: ["backend:5000"]
+        labels:
+          app: "matrimony"
+          service: "backend"
+
+  # Admin Backend Metrics
+  - job_name: "matrimony-admin-backend"
+    metrics_path: /api/admin/metrics
+    static_configs:
+      - targets: ["admin-backend:5001"]
+        labels:
+          app: "matrimony"
+          service: "admin-backend"
+
+  # Redis Exporter (optional — add redis_exporter container if needed)
+  # - job_name: "redis"
+  #   static_configs:
+  #     - targets: ["redis-exporter:9121"]
+
+  # MariaDB Exporter (optional — add mysqld_exporter container if needed)
+  # - job_name: "mariadb"
+  #   static_configs:
+  #     - targets: ["mysqld-exporter:9104"]
