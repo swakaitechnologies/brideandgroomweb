@@ -8,6 +8,7 @@ import { Crown, Check, Sparkles, Loader2, Zap, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/store/authStore";
 
 const PlansPage = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -15,12 +16,18 @@ const PlansPage = () => {
   const { plans, loading, isPremium, currentSubscription } = useSelector(
     (state: RootState) => state.payment
   );
+  const { user } = useAuthStore();
 
   useEffect(() => {
     dispatch(fetchPlans());
   }, [dispatch]);
 
   const handleSelectPlan = async (planId: string) => {
+    if (!user) {
+      toast.error("Please log in or register to subscribe to a premium plan");
+      navigate("/register");
+      return;
+    }
     try {
       const result = await dispatch(
         createPaymentOrder({ planId, currency: "INR" })

@@ -23,8 +23,6 @@ const Footer = () => {
       links: [
         { label: "About Us", path: "/about" },
         { label: "Success Stories", path: "/stories" },
-        { label: "Bride&Groom Blogs", path: "/blogs" },
-        { label: "Careers", path: "/careers" },
         { label: "Contact Us", path: "/contact" },
       ],
     },
@@ -32,19 +30,16 @@ const Footer = () => {
       title: "Services",
       links: [
         { label: "Matchmaking", path: "/matches" },
-        { label: "Personalized Search", path: "/search" },
-        { label: "VIP Matchmaking", path: "/vip" },
-        { label: "Astrology Services", path: "/astrology" },
-        { label: "Wedding Directory", path: "/weddings" },
+        { label: "Search Profiles", path: "/search" },
+        { label: "Premium Plans", path: "/plans" },
       ],
     },
     {
       title: "Support",
       links: [
-        { label: "Help Center", path: "/help" },
-        { label: "Safety Tips", path: "/safety" },
-        { label: "Terms of Use", path: "/terms" },
+        { label: "Terms & Conditions", path: "/terms" },
         { label: "Privacy Policy", path: "/privacy" },
+        { label: "Refund Policy", path: "/refund" },
         { label: "Cookie Policy", path: "/cookies" },
       ],
     },
@@ -218,6 +213,7 @@ const Footer = () => {
             <div className="flex items-center gap-6 text-[10px] text-slate-400 font-bold tracking-widest">
               <Link to="/terms" className="hover:text-primary transition-colors">TERMS</Link>
               <Link to="/privacy" className="hover:text-primary transition-colors">PRIVACY</Link>
+              <Link to="/refund" className="hover:text-primary transition-colors">REFUND & CANCELLATION</Link>
               <Link to="/cookies" className="hover:text-primary transition-colors">COOKIES</Link>
             </div>
           </div>

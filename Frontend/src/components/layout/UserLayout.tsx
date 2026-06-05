@@ -40,6 +40,8 @@ const UserLayout = ({ children, className = "container" }: UserLayoutProps) => {
           <div className="flex justify-center gap-8 font-medium">
              <Link to="/terms" className="hover:text-rose-600 transition-colors">Terms of Service</Link>
              <Link to="/privacy" className="hover:text-rose-600 transition-colors">Privacy Policy</Link>
+             <Link to="/refund" className="hover:text-rose-600 transition-colors">Refund Policy</Link>
+             <Link to="/cookies" className="hover:text-rose-600 transition-colors">Cookie Policy</Link>
              <Link to="/contact" className="hover:text-rose-600 transition-colors">Contact Support</Link>
           </div>
           <div className="text-slate-400">

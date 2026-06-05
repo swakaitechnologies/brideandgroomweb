@@ -57,6 +57,8 @@ const ContactPage = lazy(() => import("./modules/support/ContactPage"));
 const FeedbackPage = lazy(() => import("./modules/support/FeedbackPage"));
 const TermsPage = lazy(() => import("./modules/legal/TermsPage"));
 const PrivacyPage = lazy(() => import("./modules/legal/PrivacyPage"));
+const RefundPage = lazy(() => import("./modules/legal/RefundPage"));
+const CookiePolicyPage = lazy(() => import("./modules/support/CookiePolicyPage"));
 const BannedPage = lazy(() => import("./modules/BannedPage"));
 const Page404 = lazy(() => import("./modules/error/Page404"));
 const Page505 = lazy(() => import("./modules/error/Page505"));
@@ -84,6 +86,8 @@ function App() {
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/refund" element={<RefundPage />} />
+            <Route path="/cookies" element={<CookiePolicyPage />} />
             <Route path="/stories" element={<SuccessStoriesPage />} />
             <Route path="/505" element={<Page505 />} />
 
@@ -142,7 +146,7 @@ function App() {
             <Route path="/search/results" element={<ProtectedRoute><SearchResultsPage /></ProtectedRoute>} />
 
             {/* Payment & Subscription */}
-            <Route path="/plans" element={<ProtectedRoute><PlansPage /></ProtectedRoute>} />
+            <Route path="/plans" element={<PlansPage />} />
             <Route path="/payment-success" element={<ProtectedRoute><PaymentSuccessPage /></ProtectedRoute>} />
             <Route path="/subscription" element={<ProtectedRoute><SubscriptionPage /></ProtectedRoute>} />
 

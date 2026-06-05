@@ -30,7 +30,7 @@ const ContactPage = () => {
                         {[
                             { icon: Mail, label: "Email Support", value: supportEmail, desc: "Our response time is typically 24 hours." },
                             { icon: Phone, label: "Phone Support", value: supportPhone, desc: "Available Mon-Fri, 9am - 6pm IST." },
-                            { icon: MapPin, label: "Global Headquarters", value: "Heritage Plaza, Mumbai, India", desc: "Visit our flagship experience center." },
+                            { icon: MapPin, label: "Headquarters", value: "Jalgaon, Maharashtra, India", desc: "SwaKai Technologies office." },
                         ].map((item, idx) => (
                             <div key={idx} className="bg-white border border-border rounded-[2.5rem] p-8 text-center space-y-4 hover:shadow-xl transition-all duration-500">
                                 <div className="w-12 h-12 bg-primary/5 rounded-2xl flex items-center justify-center text-secondary mx-auto">
